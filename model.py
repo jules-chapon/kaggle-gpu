@@ -3,6 +3,7 @@ import torch
 
 class BaseModel(torch.nn.Module):
     """Base class for all models with additional methods"""
+
     # @TODO: add factory for autoregristration of model classes.
     # @TODO: add load/save methods
     def count_parameters(self):
@@ -14,15 +15,28 @@ class ConvModel(BaseModel):
     with pooling and pointwise convolutions to allow estimating a scalar value
     """
 
-    def __init__(self, in_channels: int, out_channels: int = 1, conv_feats: int = 8, h_dim=4, kernel_size: int = 3):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int = 1,
+        conv_feats: int = 8,
+        h_dim=4,
+        kernel_size: int = 3,
+    ):
         super().__init__()
         self.in_channels = in_channels
-        self.conv1 = torch.nn.Conv1d(in_channels, conv_feats, kernel_size=kernel_size, padding=kernel_size//2)
-        self.conv2 = torch.nn.Conv1d(conv_feats, conv_feats, kernel_size=kernel_size, padding=kernel_size//2)
+        self.conv1 = torch.nn.Conv1d(
+            in_channels, conv_feats, kernel_size=kernel_size, padding=kernel_size // 2
+        )
+        self.conv2 = torch.nn.Conv1d(
+            conv_feats, conv_feats, kernel_size=kernel_size, padding=kernel_size // 2
+        )
         self.non_linearity = torch.nn.ReLU()
         self.pointwise1 = torch.nn.Conv1d(conv_feats, h_dim, kernel_size=1)
         self.pointwise2 = torch.nn.Conv1d(h_dim, out_channels, kernel_size=1)
-        self.conv_model = torch.nn.Sequential(self.conv1, self.non_linearity, self.conv2, self.non_linearity)
+        self.conv_model = torch.nn.Sequential(
+            self.conv1, self.non_linearity, self.conv2, self.non_linearity
+        )
         self.pool = torch.nn.AdaptiveAvgPool1d(8)
         self.final_pool = torch.nn.AdaptiveMaxPool1d(1)
 
